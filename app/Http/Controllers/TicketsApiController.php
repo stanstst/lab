@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ParkingTicket;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -33,7 +34,16 @@ class TicketsApiController extends Controller
     {
         $request->validate(
             [
-                'registration_number' => 'required|alpha_num',
+                'registration_number' => [
+                    'required',
+                    'alpha_num',
+                    Rule::unique('parking_tickets')->where(
+                        function (Builder $query) use ($request) {
+                            return $query->where('registration_number', $request->registration_number)
+                                ->where('status', ParkingTicket::STATUS_ENTERED);
+                        }
+                    ),
+                ],
                 'category' => [
                     'required',
                     Rule::in(array_keys(ParkingTicket::CATEGORY_SPACES)),
