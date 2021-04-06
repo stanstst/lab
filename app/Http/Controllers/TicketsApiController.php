@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ParkingTicket;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -25,12 +26,18 @@ class TicketsApiController extends Controller
         return new JsonResponse([$parkingTicket]);
     }
 
+    /**
+     * @throws ValidationException
+     */
     private function insertTicket(Request $request): ParkingTicket
     {
         $request->validate(
             [
-                'registration_number' => 'required',
-                'category' => 'required',
+                'registration_number' => 'required|alpha_num',
+                'category' => [
+                    'required',
+                    Rule::in(array_keys(ParkingTicket::CATEGORY_SPACES)),
+                ],
             ]
         );
 
