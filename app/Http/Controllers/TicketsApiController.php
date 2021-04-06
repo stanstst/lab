@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class TicketsApiController extends Controller
@@ -18,10 +19,10 @@ class TicketsApiController extends Controller
             $parkingTicket = $this->insertTicket($request);
         } catch (ValidationException $exception) {
 
-            return new JsonResponse(['errors' => $exception->errors()]);
+            return new JsonResponse(['errors' => $exception->errors(), Response::HTTP_BAD_REQUEST]);
         } catch (Throwable $exception) {
 
-            return new JsonResponse('Error creating a ticket.');
+            return new JsonResponse('Error creating a ticket.', Response::HTTP_BAD_GATEWAY);
         }
 
         return new JsonResponse([$parkingTicket]);
