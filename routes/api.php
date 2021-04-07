@@ -24,3 +24,5 @@ Route::post('/ticket', [TicketsApiController::class, 'create']);
 Route::patch('/checkout', [TicketsApiController::class, 'checkout']);
 
 Route::get('/availability', [TicketsApiController::class, 'getAvailability']);
+
+Route::get('/price/{registration_number}', [TicketsApiController::class, 'getPrice']);

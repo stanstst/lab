@@ -2,9 +2,16 @@
 
 namespace App\Models;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string category
+ * @property string entered_at
+ * @property string registration_number
+ * @property string status
+ */
 class ParkingTicket extends Model
 {
     use HasFactory;
@@ -20,4 +27,9 @@ class ParkingTicket extends Model
         self::CATEGORY_B => 2,
         self::CATEGORY_C => 4,
     ];
+
+    public function getEnteredAt(): DateTime
+    {
+        return new DateTime($this->entered_at);
+    }
 }

@@ -12,6 +12,7 @@ use App\Service\PriceCalculator;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Psr\Log\LoggerInterface;
@@ -112,7 +113,6 @@ class TicketsApiController extends Controller
                 ]
             );
 
-
             $parkingTicket = $this->parkingTicketCheckout->checkout(new CheckoutDto($request));
         } catch (ValidationException $exception) {
 
@@ -139,17 +139,35 @@ class TicketsApiController extends Controller
         return new JsonResponse(['availableSpaces' => $availableSpaces]);
     }
 
-    public function getPrice(Request $request)
+    public function getPrice(string $registrationNumber)
     {
+        $validator = Validator::make(
+            ['registration_number' => $registrationNumber],
+            [
+                'registration_number' => [
+                    Rule::exists('parking_tickets')->where(
+                        function (Builder $query) use ($registrationNumber) {
+                            return $query->where('registration_number', $registrationNumber)
+                                ->where('status', ParkingTicket::STATUS_ENTERED);
+                        }
+                    ),
+                ],
+            ]
+        );
+
+        if (count($validator->errors()->toArray())) {
+            return new JsonResponse(['errors' => $validator->errors()->toArray(), Response::HTTP_BAD_REQUEST]);
+        }
+
         try {
-            $availableSpaces = $this->priceCalculator->calculate($request);
+            $price = $this->priceCalculator->calculate($registrationNumber);
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['exception' => $exception]);
 
-            return new JsonResponse(['Error getting availability.'], Response::HTTP_BAD_GATEWAY);
+            return new JsonResponse(['Error getting price.'], Response::HTTP_BAD_GATEWAY);
         }
 
-        return new JsonResponse(['availableSpaces' => $availableSpaces]);
+        return new JsonResponse(['price' => $price]);
     }
 
 }
