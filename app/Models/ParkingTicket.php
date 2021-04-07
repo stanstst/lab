@@ -10,6 +10,7 @@ class ParkingTicket extends Model
     use HasFactory;
 
     const STATUS_ENTERED = 'entered';
+    const STATUS_EXITED = 'exited';
 
     const CATEGORY_A = 'a';
     const CATEGORY_B = 'b';

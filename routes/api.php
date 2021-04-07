@@ -20,3 +20,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('/ticket', [TicketsApiController::class, 'create']);
+
+Route::patch('/checkout', [TicketsApiController::class, 'checkout']);
