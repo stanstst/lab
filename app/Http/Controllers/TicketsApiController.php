@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Service\AvailabilityCalculator;
 use App\Service\ParkingTicketCheckout;
 use App\Service\ParkingTicketCheckin;
 use Illuminate\Http\JsonResponse;
@@ -28,14 +29,21 @@ class TicketsApiController extends Controller
      */
     private $parkingTicketCheckout;
 
+    /**
+     * @var AvailabilityCalculator
+     */
+    private $availabilityCalculator;
+
     public function __construct(
         ParkingTicketCheckin $parkingTicketCheckin,
         ParkingTicketCheckout $parkingTicketCheckout,
+        AvailabilityCalculator $availabilityCalculator,
         LoggerInterface $logger
     ) {
         $this->logger = $logger;
         $this->parkingTicketCheckin = $parkingTicketCheckin;
         $this->parkingTicketCheckout = $parkingTicketCheckout;
+        $this->availabilityCalculator = $availabilityCalculator;
     }
 
     public function create(Request $request)
@@ -69,4 +77,18 @@ class TicketsApiController extends Controller
 
         return new JsonResponse($parkingTicket);
     }
+
+    public function getAvailability(Request $request)
+    {
+        try {
+            $availableSpaces = $this->availabilityCalculator->calculate();
+        } catch (Throwable $exception) {
+            $this->logger->error($exception->getMessage(), ['exception' => $exception]);
+
+            return new JsonResponse(['Error getting availability.'], Response::HTTP_BAD_GATEWAY);
+        }
+
+        return new JsonResponse(['availableSpaces' => $availableSpaces]);
+    }
+
 }
