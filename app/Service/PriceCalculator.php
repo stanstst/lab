@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Models\ParkingTicket;
+use App\Repositories\ParkingTicketRepository;
 use DateTime;
 
 class PriceCalculator
@@ -21,24 +22,30 @@ class PriceCalculator
      */
     private $parkingHoursCalculator;
 
-    public function __construct(ParkingHoursCalculator $parkingHoursCalculator)
+    /**
+     * @var ParkingTicketRepository
+     */
+    private $parkingTicketRepository;
+
+    public function __construct(ParkingHoursCalculator $parkingHoursCalculator, ParkingTicketRepository $parkingTicketRepository
+    )
     {
         $this->parkingHoursCalculator = $parkingHoursCalculator;
+        $this->parkingTicketRepository = $parkingTicketRepository;
     }
 
     /**
+     * @param string $registrationNumber
+     * @param $dateTo
+     * @return float
      * @todo Add discount cart
      */
-    public function calculate(string $registrationNumber): float
+    public function calculate(string $registrationNumber, DateTime $dateTo): float
     {
-        /** @var ParkingTicket $parkingTicket */
-        $parkingTicket = ParkingTicket::where('registration_number', $registrationNumber)
-            ->where('status', ParkingTicket::STATUS_ENTERED)
-            ->first();
+        $parkingTicket = $this->parkingTicketRepository->findOneByRegistrationNumber($registrationNumber);
+        $parkingHours = $this->parkingHoursCalculator->get($parkingTicket->getEnteredAt(), $dateTo);
 
-        $parkingHours = $this->parkingHoursCalculator->get($parkingTicket->getEnteredAt(), new DateTime());
-
-        $rate = self::RATES[$parkingTicket->category];
+        $rate = self::RATES[$parkingTicket->getCategory()];
 
         return $parkingHours->getDayHours() * $rate[self::DAY] + $parkingHours->getNightHours() * $rate[self::NIGHT];
     }

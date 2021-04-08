@@ -32,4 +32,9 @@ class ParkingTicket extends Model
     {
         return new DateTime($this->entered_at);
     }
+
+    public function getCategory(): string
+    {
+        return $this->category;
+    }
 }

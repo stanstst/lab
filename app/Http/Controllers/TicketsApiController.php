@@ -9,6 +9,7 @@ use App\Service\AvailabilityCalculator;
 use App\Service\ParkingTicketCheckout;
 use App\Service\ParkingTicketCheckin;
 use App\Service\PriceCalculator;
+use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -160,7 +161,7 @@ class TicketsApiController extends Controller
         }
 
         try {
-            $price = $this->priceCalculator->calculate($registrationNumber);
+            $price = $this->priceCalculator->calculate($registrationNumber, new DateTime());
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['exception' => $exception]);
 
