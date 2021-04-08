@@ -27,9 +27,10 @@ class PriceCalculator
      */
     private $parkingTicketRepository;
 
-    public function __construct(ParkingHoursCalculator $parkingHoursCalculator, ParkingTicketRepository $parkingTicketRepository
-    )
-    {
+    public function __construct(
+        ParkingHoursCalculator $parkingHoursCalculator,
+        ParkingTicketRepository $parkingTicketRepository
+    ) {
         $this->parkingHoursCalculator = $parkingHoursCalculator;
         $this->parkingTicketRepository = $parkingTicketRepository;
     }
@@ -38,7 +39,6 @@ class PriceCalculator
      * @param string $registrationNumber
      * @param $dateTo
      * @return float
-     * @todo Add discount cart
      */
     public function calculate(string $registrationNumber, DateTime $dateTo): float
     {
@@ -46,7 +46,9 @@ class PriceCalculator
         $parkingHours = $this->parkingHoursCalculator->get($parkingTicket->getEnteredAt(), $dateTo);
 
         $rate = self::RATES[$parkingTicket->getCategory()];
+        $discountMultiplier = ParkingTicket::DISCOUNTS[$parkingTicket->getDiscountCard()];
 
-        return $parkingHours->getDayHours() * $rate[self::DAY] + $parkingHours->getNightHours() * $rate[self::NIGHT];
+        return ($parkingHours->getDayHours() * $rate[self::DAY] + $parkingHours->getNightHours() * $rate[self::NIGHT])
+            * $discountMultiplier;
     }
 }

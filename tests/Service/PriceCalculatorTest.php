@@ -57,10 +57,11 @@ class PriceCalculatorTest extends TestCase
         $dateTimeTo = new DateTime('2020-02-16 00:00:00');
         $this->ticket->getEnteredAt()->willReturn($dateTimeFrom);
         $this->ticket->getCategory()->willReturn(ParkingTicket::CATEGORY_A);
+        $this->ticket->getDiscountCard()->willReturn(ParkingTicket::DISCOUNT_CARD_GOLD);
 
         $this->parkingHoursCalculator->get($dateTimeFrom, $dateTimeTo)->willReturn(new ParkingHoursDto(2, 3));
 
         $price = $this->priceCalculator->calculate(self::REGISTRATION_NUMBER, $dateTimeTo);
-        $this->assertEquals(12.0, $price);
+        $this->assertEquals(10.2, $price);
     }
 }

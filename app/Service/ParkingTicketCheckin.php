@@ -15,6 +15,7 @@ class ParkingTicketCheckin
         $parkingTicket->registration_number = $requestData->getRegistrationNumber();
         $parkingTicket->category = $requestData->getCategory();
         $parkingTicket->status = ParkingTicket::STATUS_ENTERED;
+        $parkingTicket->discount_card = $requestData->getDiscountCard()? : ParkingTicket::DISCOUNT_CARD_NONE;
         $parkingTicket->entered_at = new DateTime();
 
         $parkingTicket->save();

@@ -80,6 +80,9 @@ class TicketsApiController extends Controller
                         'required',
                         Rule::in(array_keys(ParkingTicket::CATEGORY_SPACES)),
                     ],
+                    'discount_card' => [
+                        Rule::in(array_keys(ParkingTicket::DISCOUNTS)),
+                    ],
                 ]
             );
 
